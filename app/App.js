@@ -13,27 +13,7 @@ import {
 } from 'react-native';
 
 import SmartLendDemo from './SmartLendDemo';
-
-class Blink extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { isShowingText: true };
-
-    // Toggle the state every second
-    setInterval(() => {
-      this.setState(previousState => {
-        return { isShowingText: !previousState.isShowingText };
-      });
-    }, 1000);
-  }
-
-  render() {
-    let display = this.state.isShowingText ? this.props.text : ' ';
-    return (
-      <Text>{display}</Text>
-    );
-  }
-}
+import Blink from './Blink';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -42,14 +22,13 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-
 export default class App extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
         <Blink text='I love to blink' />
         <Text style={styles.welcome}>
-          Welcome to React Native RON!
+          SmartLend Demo App
         </Text>
         <Text style={styles.instructions}>
           {instructions}

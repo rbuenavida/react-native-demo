@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import org.pgsqlite.SQLitePluginPackage;
 
 import com.centaurwarchief.smslistener.SmsListenerPackage;
+import com.rhaker.reactnativesmsandroid.RNSmsAndroidPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new SQLitePluginPackage(),
           new SmsListenerPackage(),
+          new RNSmsAndroidPackage(),
           new MainReactPackage()
       );
     }

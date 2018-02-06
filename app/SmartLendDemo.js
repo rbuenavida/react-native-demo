@@ -21,49 +21,66 @@ import {
   Button
 } from 'react-native';
 
-import SmsListener from 'react-native-android-sms-listener'
+import SmsListener from 'react-native-android-sms-listener';
+import SendSmsAndroid from 'react-native-sms-android';
 import Store from './db/store';
+
+const onSms = (message) => {
+  let wordsRegex = /\s*\s/
+  let messageWords = message.body.split(wordsRegex)
+
+  // check received phone number
+  let originator = message.originator;
+  // console.info(messageWords, message)
+
+  if (messageWords[0] === "ping") {
+    SendSmsAndroid.sms(
+      message.originatingAddress, // phone number to send sms to
+      'pong', // sms body
+      'sendDirect', // sendDirect or sendIndirect
+      (err, message) => {
+        if (err){
+          console.log("error");
+        } else {
+          console.log(message); // callback message
+        }
+      }
+    );
+  }
+
+  if (messageWords[0] === "config") {
+    let [key, value] = messageWords[1].split(':')
+    Store.upsertSetting(key, value).catch((error) => console.log(error));
+  }
+}
+
+// register only once, otherwise everytime the component get's mounted
+// it will add another listener. Lifecycle hooks don't seem to work
+const subscription = SmsListener.addListener(onSms)
+
+const setConfigRows = (result) => (prevState) => {
+  let rows = [];
+  for (let i = 0; i < result.rows.length; i++) {
+    rows.push(result.rows.item(i).name + ' : ' + result.rows.item(i).value)
+  }
+  return { rows: rows }
+}
 
 export default class SmartLendDemo extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      progress: []
+      rows: []
     }
-    this.subscription = null;
-  }
-
-  componentWillMount () {
-    this.subscription = SmsListener.addListener(message => {
-      console.info(message)
-    })
-  }
-
-  componentWillUnmount () {
-    this.subscription.remove()
-  }
-
-  updateProgress = (text) => {
-    let progress = [...this.state.progress]
-    progress.push(text);
-    this.setState({
-      progress
-    })
   }
 
   getConfig = () => {
-    this.setState({
-      progress: ["Starting Demo"]
-    })
-    Store.getEmployees().then((result) => {
-      console.log(result)
-      Array.apply(null, {length: result.rows.length}).map(
-        (Number, idx) => this.updateProgress(result.rows.item(idx).name)
-      )
+    Store.getSettings().then((result) => {
+      this.setState(setConfigRows(result))
     })
   }
 
-  renderProgressEntry = (entry) => {
+  renderRow = (entry) => {
     return (
       <View style={listStyles.li}>
         <View>
@@ -81,13 +98,13 @@ export default class SmartLendDemo extends Component {
           <Button 
             color="#1e93f6" 
             onPress={this.getConfig} 
-            title="Get Config"
+            title="Show Config"
             />
         </View>  
         <ListView
           enableEmptySections={true}
-          dataSource={ds.cloneWithRows(this.state.progress)}
-          renderRow={this.renderProgressEntry}
+          dataSource={ds.cloneWithRows(this.state.rows)}
+          renderRow={this.renderRow}
           style={listStyles.liContainer} />  
       </View>
     )

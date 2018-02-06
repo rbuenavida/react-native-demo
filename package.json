@@ -11,6 +11,7 @@
     "react": "16.2.0",
     "react-native": "0.52.2",
     "react-native-android-sms-listener": "^0.5.0",
+    "react-native-sms-android": "^0.4.1",
     "react-native-sqlite-storage": "^3.3.4"
   },
   "devDependencies": {
